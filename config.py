@@ -14,4 +14,4 @@ GRID_ROW = int(WIDTH / GRID_SIZE)
 MID_X = int(GRID_ROW / 2)
 MID_Y = int(GRID_COL / 2)
 
-FPS = 10
+FPS = 1
