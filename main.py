@@ -3,23 +3,23 @@ from config import *
 
 class Game:
     def __init__(self):
-        self.state = 'main_game'
+        self.state = 'setup'
         self.gen = 0
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.running = True
         self.grids = [[] for i in range(GRID_ROW)]
+        self.frame = 0
         for i in range(0, GRID_ROW):
             for j in range(0, GRID_COL):
-                if i % 3 == 0 and j % 3 == 0:   # if the grid is the middle one
-                    self.grids[i].append(1)
-                else:
-                    self.grids[i].append(0)
+                self.grids[i].append(0)
 
         ...
 
     def state_manager(self):
-        if self.state == 'main_game':
+        if self.state == 'setup':
+            self.setup()
+        elif self.state == 'main_game':
             self.main_game()
 
     def get_neighbor(self, x: int, y: int):
@@ -39,28 +39,73 @@ class Game:
 
         return neighbors_count
 
+    def setup(self):
+        """SETUP BEFORE STARTING GAME"""
+
+        self.screen.fill(BGCOLOR)
+
+        # logic for the grids
+        # temp = []
+        # for i in range(0, GRID_ROW):
+        #     temp.append([])
+        # for ix, row in enumerate(self.grids):
+        #     for iy, cell in enumerate(row):
+        #         neighbors = self.get_neighbor(ix, iy)
+        #         if neighbors > 3 or neighbors < 2:
+        #             temp[ix].append(0)
+        #         elif neighbors == 3:
+        #             temp[ix].append(1)
+        #         else:
+        #             temp[ix].append(self.grids[ix][iy])
+
+        # self.grids = temp
+
+        # del temp
+            
+        # draw grids
+        for ix, row in enumerate(self.grids):
+            for iy, cell in enumerate(row):
+                    pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR, (ix*GRID_SIZE, iy*GRID_SIZE, GRID_SIZE, GRID_SIZE))
+
+        pygame.display.update()
+
+        # handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                print(pos)
+                x = pos[0] // GRID_SIZE
+                y = pos[1] // GRID_SIZE
+                self.grids[x][y] ^= True #1 if not self.grids[x][y] else 0
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.state = 'main_game'
+
     def main_game(self):
         """MAIN GAME STATE"""
 
         self.screen.fill(BGCOLOR)
 
         # logic for the grids
-        temp = []
-        for i in range(0, GRID_ROW):
-            temp.append([])
-        for ix, row in enumerate(self.grids):
-            for iy, cell in enumerate(row):
-                neighbors = self.get_neighbor(ix, iy)
-                if neighbors > 3 or neighbors < 2:
-                    temp[ix].append(0)
-                elif neighbors == 3:
-                    temp[ix].append(1)
-                else:
-                    temp[ix].append(self.grids[ix][iy])
+        if self.frame % 30 == 0:
+            temp = []
+            for i in range(0, GRID_ROW):
+                temp.append([])
+            for ix, row in enumerate(self.grids):
+                for iy, cell in enumerate(row):
+                    neighbors = self.get_neighbor(ix, iy)
+                    if neighbors > 3 or neighbors < 2:
+                        temp[ix].append(0)
+                    elif neighbors == 3:
+                        temp[ix].append(1)
+                    else:
+                        temp[ix].append(self.grids[ix][iy])
 
-        self.grids = temp
+            self.grids = temp
 
-        del temp
+            del temp
             
         # draw grids
         for ix, row in enumerate(self.grids):
@@ -80,6 +125,7 @@ class Game:
         while self.running:
             self.clock.tick(FPS)
             self.state_manager()
+            self.frame += 1
         pygame.quit()
 
 def main():
