@@ -15,3 +15,4 @@ MID_X = int(GRID_ROW / 2)
 MID_Y = int(GRID_COL / 2)
 
 FPS = 60
+GPS = 5

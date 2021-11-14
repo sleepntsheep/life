@@ -44,25 +44,6 @@ class Game:
 
         self.screen.fill(BGCOLOR)
 
-        # logic for the grids
-        # temp = []
-        # for i in range(0, GRID_ROW):
-        #     temp.append([])
-        # for ix, row in enumerate(self.grids):
-        #     for iy, cell in enumerate(row):
-        #         neighbors = self.get_neighbor(ix, iy)
-        #         if neighbors > 3 or neighbors < 2:
-        #             temp[ix].append(0)
-        #         elif neighbors == 3:
-        #             temp[ix].append(1)
-        #         else:
-        #             temp[ix].append(self.grids[ix][iy])
-
-        # self.grids = temp
-
-        # del temp
-            
-        # draw grids
         for ix, row in enumerate(self.grids):
             for iy, cell in enumerate(row):
                     pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR, (ix*GRID_SIZE, iy*GRID_SIZE, GRID_SIZE, GRID_SIZE))
@@ -89,7 +70,7 @@ class Game:
         self.screen.fill(BGCOLOR)
 
         # logic for the grids
-        if self.frame % 30 == 0:
+        if self.frame % (FPS / GPS) == 0:
             temp = []
             for i in range(0, GRID_ROW):
                 temp.append([])
@@ -106,7 +87,7 @@ class Game:
             self.grids = temp
 
             del temp
-            
+
         # draw grids
         for ix, row in enumerate(self.grids):
             for iy, cell in enumerate(row):
@@ -131,6 +112,6 @@ class Game:
 def main():
     game = Game()
     game.run()
-    
+
 if __name__ == '__main__':
     main()
