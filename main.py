@@ -39,19 +39,26 @@ class Game:
 
         return neighbors_count
 
+    def draw_grid(self):
+        for ix, row in enumerate(self.grids):
+            for iy, cell in enumerate(row):
+                pygame.draw.rect(self.screen, BDCOLOR, (ix*GRID_SIZE, iy*GRID_SIZE, GRID_SIZE, GRID_SIZE))
+                pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR, (ix*GRID_SIZE + 1, iy*GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2))
+
+
     def setup(self):
         """SETUP BEFORE STARTING GAME"""
 
         self.screen.fill(BGCOLOR)
 
-        for ix, row in enumerate(self.grids):
-            for iy, cell in enumerate(row):
-                    pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR, (ix*GRID_SIZE, iy*GRID_SIZE, GRID_SIZE, GRID_SIZE))
+        self.draw_grid()
 
         pygame.display.update()
 
-        # handle events
+        # handle e >> s[i]vents
         for event in pygame.event.get():
+
+
             if event.type == pygame.QUIT:
                 self.running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -59,7 +66,7 @@ class Game:
                 print(pos)
                 x = pos[0] // GRID_SIZE
                 y = pos[1] // GRID_SIZE
-                self.grids[x][y] ^= True #1 if not self.grids[x][y] else 0
+                self.grids[x][y] ^= True #invert state
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.state = 'main_game'
@@ -88,10 +95,7 @@ class Game:
 
             del temp
 
-        # draw grids
-        for ix, row in enumerate(self.grids):
-            for iy, cell in enumerate(row):
-                    pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR, (ix*GRID_SIZE, iy*GRID_SIZE, GRID_SIZE, GRID_SIZE))
+        self.draw_grid()
 
         pygame.display.update()
 
