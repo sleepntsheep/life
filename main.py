@@ -113,8 +113,9 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            else:
-                ...
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.state = 'setup'
 
     def run(self):
         while self.running:
