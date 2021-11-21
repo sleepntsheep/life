@@ -10,10 +10,11 @@ class Game:
         self.running = True
         self.grids = {}
         self.frame = 0
+        self.x = MIDWIDTH // GRID_SIZE
+        self.y = MIDHEIGHT // GRID_SIZE
         # for i in range(0, GRID_ROW):
         #     for j in range(0, GRID_COL):
         #         self.grids[i].append(0)
-
 
     def state_manager(self):
         if self.state == 'setup':
@@ -42,11 +43,12 @@ class Game:
 
     def draw_grid(self):
         for cell in self.grids:
-            if cell == 0: continue
             ix = cell[0]
             iy = cell[1]
-            pygame.draw.rect(self.screen, BDCOLOR, (ix*GRID_SIZE, iy*GRID_SIZE, GRID_SIZE, GRID_SIZE))
-            pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR, (ix*GRID_SIZE + 1, iy*GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2))
+            posx = (self.x + ix) *GRID_SIZE
+            posy = (self.y + iy) *GRID_SIZE
+            pygame.draw.rect(self.screen, BDCOLOR, (posx, posy, GRID_SIZE, GRID_SIZE))
+            pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR, (posx + 1, posy + 1, GRID_SIZE - 2, GRID_SIZE - 2))
 
 
     def setup(self):
@@ -64,16 +66,20 @@ class Game:
                 self.running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                print(pos)
-                x = pos[0] // GRID_SIZE
-                y = pos[1] // GRID_SIZE
-                if (x, y) in self.grids:
-                    del self.grids[(x, y)]
-                else: 
-                    self.grids[(x, y)] = 1
+                self.toggle_cell(pos)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.state = 'main_game'
+
+    def toggle_cell(self, pos):
+        x = pos[0] // GRID_SIZE - self.x
+        y = pos[1] // GRID_SIZE - self.y
+        print(pos)
+        print(x, y)
+        if (x, y) in self.grids:
+            del self.grids[(x, y)]
+        else: 
+            self.grids[(x, y)] = 1
 
     def new_gen(self):
         ...
