@@ -2,6 +2,13 @@ import pygame
 from config import *
 
 
+def all_neighbors(cell):
+    x = cell[0]
+    y = cell[1]
+    return [(x - 1, y - 1), (x - 1, y), (x - 1, y + 1), (x, y - 1), (x, y + 1), (x + 1, y + 1), (x + 1, y),
+            (x + 1, y - 1), (x, y)]
+
+
 class Game:
     def __init__(self):
         self.state = 'setup'
@@ -11,10 +18,10 @@ class Game:
         self.running = True
         self.grids = {}
         self.frame = 0
-        self.cell_size = GRID_SIZE
+        self.cell_size = CELL_SIZE
         self.x = MIDWIDTH // self.cell_size
         self.y = MIDHEIGHT // self.cell_size
-        self.borderwidth = self.cell_size / 16
+        self.border_width = self.cell_size / 16
 
     def state_manager(self):
         if self.state == 'setup':
@@ -36,20 +43,12 @@ class Game:
         neighbors_count = 0
 
         for cord in neighbors:
-            # if cord[0] != -1 and cord[1] != -1 and cord[0] != GRID_ROW and cord[1] != GRID_COL:
-            if cord in self.grids:
-                neighbors_count += 1
+            neighbors_count += (cord in self.grids)
 
         return neighbors_count
 
-    def draw_grid(self, borderall=False):
-        cellsize = self.cell_size - 2 * self.borderwidth
-        if borderall:
-            self.screen.fill(BDCOLOR)
-
-            for x in range(GRID_ROW):
-                for y in range(GRID_COL):
-                    pygame.draw.rect(self.screen, BGCOLOR, (x * self.cell_size + self.borderwidth, y * self.cell_size+self.borderwidth, cellsize, cellsize))
+    def draw_grid(self):
+        cellsize = self.cell_size - 2 * self.border_width
         for cell in self.grids:
             ix = cell[0]
             iy = cell[1]
@@ -58,14 +57,14 @@ class Game:
             pygame.draw.rect(self.screen, BDCOLOR,
                              (posx, posy, self.cell_size, self.cell_size))
             pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR,
-                             (posx + self.borderwidth, posy + self.borderwidth, cellsize, cellsize))
+                             (posx + self.border_width, posy + self.border_width, cellsize, cellsize))
 
     def setup(self):
         """SETUP BEFORE STARTING GAME"""
 
         self.screen.fill(BGCOLOR)
 
-        self.draw_grid(borderall=True)
+        self.draw_grid()
 
         pygame.display.update()
 
@@ -110,7 +109,7 @@ class Game:
             self.cell_size -= 1
         else:
             self.cell_size += 1
-        self.borderwidth = self.cell_size // 16
+        self.border_width = self.cell_size // 16
 
     def toggle_cell(self, pos):
         x = pos[0] // self.cell_size - self.x
@@ -120,22 +119,14 @@ class Game:
         else:
             self.grids[(x, y)] = 1
 
-    def all_neighbors(self, cell):
-        x = cell[0]
-        y = cell[1]
-        return [(x-1, y-1), (x-1, y), (x-1, y+1), (x, y-1), (x, y+1), (x+1, y+1), (x+1, y), (x+1, y-1), (x, y)]
-
     def main_game(self):
         """MAIN GAME STATE"""
-
         self.screen.fill(BGCOLOR)
-
         # logic for the grids
         if self.frame % (FPS / GPS) == 0:
             temp = {}
             for cell in self.grids:
-                nei_count = self.all_neighbors(cell)
-                for nei in self.all_neighbors(cell):
+                for nei in all_neighbors(cell):
                     nc = (self.get_neighbor(nei))
                     if nc < 2 or nc > 3:
                         continue
@@ -148,7 +139,6 @@ class Game:
             del temp
 
         self.draw_grid()
-
         pygame.display.update()
 
         # handle events
