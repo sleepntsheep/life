@@ -8,13 +8,12 @@ class Game:
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.running = True
-        self.grids = [[] for i in range(GRID_ROW)]
+        self.grids = {}
         self.frame = 0
-        for i in range(0, GRID_ROW):
-            for j in range(0, GRID_COL):
-                self.grids[i].append(0)
+        # for i in range(0, GRID_ROW):
+        #     for j in range(0, GRID_COL):
+        #         self.grids[i].append(0)
 
-        ...
 
     def state_manager(self):
         if self.state == 'setup':
@@ -22,28 +21,32 @@ class Game:
         elif self.state == 'main_game':
             self.main_game()
 
-    def get_neighbor(self, x: int, y: int):
+    def get_neighbor(self, cell):
         """
         params: x, y - the coordinates of the grid
         return: the number of neighbors of a grid
         """
+        x = cell[0]
+        y = cell[1]
 
         neighbors = [(x-1, y+1), (x-1, y), (x-1, y-1), (x, y+1), (x, y-1), (x+1, y+1), (x+1, y), (x+1, y-1)]
 
         neighbors_count = 0
 
         for cord in neighbors:
-            if cord[0] != -1 and cord[1] != -1 and cord[0] != GRID_ROW and cord[1] != GRID_COL:
-                if self.grids[cord[0]][cord[1]]:
-                    neighbors_count += 1
+            # if cord[0] != -1 and cord[1] != -1 and cord[0] != GRID_ROW and cord[1] != GRID_COL:
+            if cord in self.grids:
+                neighbors_count += 1
 
         return neighbors_count
 
     def draw_grid(self):
-        for ix, row in enumerate(self.grids):
-            for iy, cell in enumerate(row):
-                pygame.draw.rect(self.screen, BDCOLOR, (ix*GRID_SIZE, iy*GRID_SIZE, GRID_SIZE, GRID_SIZE))
-                pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR, (ix*GRID_SIZE + 1, iy*GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2))
+        for cell in self.grids:
+            if cell == 0: continue
+            ix = cell[0]
+            iy = cell[1]
+            pygame.draw.rect(self.screen, BDCOLOR, (ix*GRID_SIZE, iy*GRID_SIZE, GRID_SIZE, GRID_SIZE))
+            pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR, (ix*GRID_SIZE + 1, iy*GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2))
 
 
     def setup(self):
@@ -55,10 +58,8 @@ class Game:
 
         pygame.display.update()
 
-        # handle e >> s[i]vents
+        # handle events
         for event in pygame.event.get():
-
-
             if event.type == pygame.QUIT:
                 self.running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -66,10 +67,21 @@ class Game:
                 print(pos)
                 x = pos[0] // GRID_SIZE
                 y = pos[1] // GRID_SIZE
-                self.grids[x][y] ^= True #invert state
+                if (x, y) in self.grids:
+                    del self.grids[(x, y)]
+                else: 
+                    self.grids[(x, y)] = 1
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.state = 'main_game'
+
+    def new_gen(self):
+        ...
+
+    def all_neighbors(self, cell):
+        x = cell[0]
+        y = cell[1]
+        return [(x-1,y-1), (x-1,y), (x-1,y+1), (x,y-1), (x,y+1), (x+1,y+1), (x+1,y), (x+1,y-1), (x, y)]
 
     def main_game(self):
         """MAIN GAME STATE"""
@@ -78,21 +90,19 @@ class Game:
 
         # logic for the grids
         if self.frame % (FPS / GPS) == 0:
-            temp = []
-            for i in range(0, GRID_ROW):
-                temp.append([])
-            for ix, row in enumerate(self.grids):
-                for iy, cell in enumerate(row):
-                    neighbors = self.get_neighbor(ix, iy)
-                    if neighbors > 3 or neighbors < 2:
-                        temp[ix].append(0)
-                    elif neighbors == 3:
-                        temp[ix].append(1)
-                    else:
-                        temp[ix].append(self.grids[ix][iy])
-
+            temp = {}
+            for cell in self.grids:
+                nei_count = self.all_neighbors(cell)
+                for nei in self.all_neighbors(cell):
+                    nc = (self.get_neighbor(nei))
+                    if nc < 2 or nc > 3:
+                        continue
+                    elif nc == 3 :
+                        temp[nei] = 1
+                    elif nei in self.grids and nc == 2:
+                        temp[nei] = 1
+            
             self.grids = temp
-
             del temp
 
         self.draw_grid()
