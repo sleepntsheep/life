@@ -14,7 +14,7 @@ class Game:
         self.state = 'setup'
         self.gen = 0
         self.clock = pygame.time.Clock()
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
         self.running = True
         self.grids = {}
         self.frame = 0
