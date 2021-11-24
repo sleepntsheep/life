@@ -54,16 +54,26 @@ class Game:
             iy = cell[1]
             posx = (self.x + ix) * self.cell_size
             posy = (self.y + iy) * self.cell_size
+            if posx > self.x * self.cell_size + WIDTH or posx < 0: continue
+            if posy > self.y * self.cell_size + HEIGHT or posy < 0: continue
             pygame.draw.rect(self.screen, BDCOLOR,
                              (posx, posy, self.cell_size, self.cell_size))
             pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR,
                              (posx + self.border_width, posy + self.border_width, cellsize, cellsize))
+
+    def drawborder(self):
+        self.screen.fill(BDCOLOR)
+        cellsize = int(self.cell_size - 2 * self.border_width)
+        for x in range(WIDTH // self.cell_size + 1):
+            for y in range(HEIGHT // self.cell_size + 1):
+                pygame.draw.rect(self.screen, BGCOLOR, (int(x * self.cell_size + self.border_width), int(y * self.cell_size + self.border_width), cellsize, cellsize))
 
     def setup(self):
         """SETUP BEFORE STARTING GAME"""
 
         self.screen.fill(BGCOLOR)
 
+        self.drawborder()
         self.draw_grid()
 
         pygame.display.update()
@@ -81,13 +91,13 @@ class Game:
     def handlekey(self, key):
         if key == pygame.K_SPACE:
             self.state = 'main_game' if self.state == 'setup' else 'setup'
-        elif key == ord('j'):
+        elif key in [ord('j'), pygame.K_DOWN]:
             self.move(3)
-        elif key == ord('k'):
+        elif key in [ord('k'), pygame.K_UP]:
             self.move(1)
-        elif key == ord('h'):
+        elif key in [ord('h'), pygame.K_LEFT]:
             self.move(2)
-        elif key == ord('l'):
+        elif key in [ord('l'), pygame.K_RIGHT]:
             self.move(4)
         elif key == ord('-'):
             self.zoom(1)
@@ -149,9 +159,11 @@ class Game:
                 self.handlekey(event.key)
 
     def run(self):
+        global WIDTH, HEIGHT
         while self.running:
             self.clock.tick(FPS)
             self.state_manager()
+            WIDTH, HEIGHT = self.screen.get_width(), self.screen.get_height()
             self.frame += 1
         pygame.quit()
 
