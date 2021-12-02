@@ -22,6 +22,8 @@ class Game:
         self.x = MIDWIDTH // self.cell_size
         self.y = MIDHEIGHT // self.cell_size
         self.border_width = self.cell_size / 16
+        pygame.init()
+        self.font = pygame.font.SysFont('comicsansms', 36)
 
     def state_manager(self):
         if self.state == 'setup':
@@ -47,6 +49,11 @@ class Game:
 
         return neighbors_count
 
+    def draw_text(self):
+        text = f'Gen: {self.gen}\nX, Y: {self.x}, {self.y}'
+        for i, line in enumerate(text.splitlines()):
+            self.screen.blit(self.font.render(line, 1, FGCOLOR), (10, 10 + (self.font.get_height() + 4)*i))
+
     def draw_grid(self):
         cellsize = self.cell_size - 2 * self.border_width
         for cell in self.grids:
@@ -54,8 +61,6 @@ class Game:
             iy = cell[1]
             posx = (self.x + ix) * self.cell_size
             posy = (self.y + iy) * self.cell_size
-            if posx > self.x * self.cell_size + WIDTH or posx < 0: continue
-            if posy > self.y * self.cell_size + HEIGHT or posy < 0: continue
             pygame.draw.rect(self.screen, BDCOLOR,
                              (posx, posy, self.cell_size, self.cell_size))
             pygame.draw.rect(self.screen, FGCOLOR if cell else BGCOLOR,
@@ -75,6 +80,7 @@ class Game:
 
         self.drawborder()
         self.draw_grid()
+        self.draw_text()
 
         pygame.display.update()
 
@@ -148,7 +154,10 @@ class Game:
             self.grids = temp
             del temp
 
+            self.gen += 1
+
         self.draw_grid()
+        self.draw_text()
         pygame.display.update()
 
         # handle events
