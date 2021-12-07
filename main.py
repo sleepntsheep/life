@@ -1,7 +1,6 @@
 import pygame
 from config import *
 
-
 def all_neighbors(cell):
     x = cell[0]
     y = cell[1]
@@ -22,7 +21,6 @@ class Game:
         self.x = MIDWIDTH // self.cell_size
         self.y = MIDHEIGHT // self.cell_size
         self.border_width = self.cell_size / 16
-        pygame.init()
         self.font = pygame.font.SysFont('comicsansms', 36)
 
     def state_manager(self):
@@ -52,7 +50,7 @@ class Game:
     def draw_text(self):
         text = f'Gen: {self.gen}\nX, Y: {self.x}, {self.y}'
         for i, line in enumerate(text.splitlines()):
-            self.screen.blit(self.font.render(line, 1, FGCOLOR), (10, 10 + (self.font.get_height() + 4)*i))
+            self.screen.blit(self.font.render(line, True, FGCOLOR), (10, 10 + (self.font.get_height() + 4)*i))
 
     def draw_grid(self):
         cellsize = self.cell_size - 2 * self.border_width
@@ -178,6 +176,7 @@ class Game:
 
 
 def main():
+    pygame.init()
     game = Game()
     game.run()
 
